@@ -1,4 +1,4 @@
-Flask
+fastapi
 psycopg2-binary
-flask-mail
-flask-cors
+python-multipart
+
