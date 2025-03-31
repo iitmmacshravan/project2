@@ -20,7 +20,7 @@ async def process_question(question: str = Form(...), file: UploadFile = File(No
     try:
         if file:
             # Save the uploaded file
-            file_path = f"./uploads/{file.filename}"
+            file_path = f"./tmp/{file.filename}"
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             with open(file_path, "wb") as buffer:
                 buffer.write(await file.read())
@@ -30,7 +30,7 @@ async def process_question(question: str = Form(...), file: UploadFile = File(No
     except Exception as ms: 
         return {"message": "OK, question received", "question": question,"error":ms}
 
-# Run the application
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# # Run the application
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
