@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Form, HTTPException
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 import psycopg2.extras
