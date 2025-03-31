@@ -12,25 +12,31 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.get("/")
-async def root():  
+async def root():
     return {"message": "Hello World"}
+
 @app.post("/api/")
 async def process_question(question: str = Form(...), file: UploadFile = File(None)):
     try:
         if file:
-            # Save the uploaded file
-            file_path = f"./tmp/{file.filename}"
-            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            # Save file in /tmp/ (Vercel allows writing only to /tmp/)
+            file_path = f"/tmp/{file.filename}"
             with open(file_path, "wb") as buffer:
                 buffer.write(await file.read())
-            return {"message": "OK, question received with file", "question": question}
+
+            return {
+                "message": "OK, question received with file",
+                "question": question,
+                "file_path": file_path
+            }
         else:
             return {"message": "OK, question received", "question": question}
-    except Exception as ms: 
-        return {"message": "OK, question received", "question": question,"error":ms}
 
-# # Run the application
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+    except Exception as e:
+        return {
+            "message": "An error occurred",
+            "question": question,
+            "error": str(e)
+        }
