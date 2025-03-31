@@ -12,7 +12,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+@app.get("/")
+async def root():  
+    return {"message": "Hello World"}
 @app.post("/api/")
 async def process_question(question: str = Form(...), file: UploadFile = File(None)):
     if file:
