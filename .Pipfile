@@ -4,10 +4,10 @@ verify_ssl = true
 name = "pypi"
  
 [packages]
-flask = "*"
+fastapi= "*"
 psycopg2-binary = "*"
-flask-mail = "*"
-flask-cors = "*"
+python-multipart = "*"
+
 
  
 [requires]
