@@ -17,15 +17,18 @@ async def root():
     return {"message": "Hello World"}
 @app.post("/api/")
 async def process_question(question: str = Form(...), file: UploadFile = File(None)):
-    if file:
-        # Save the uploaded file
-        file_path = f"./uploads/{file.filename}"
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "wb") as buffer:
-            buffer.write(await file.read())
-        return {"message": "OK, question received with file", "question": question}
-    
-    return {"message": "OK, question received", "question": question}
+    try:
+        if file:
+            # Save the uploaded file
+            file_path = f"./uploads/{file.filename}"
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, "wb") as buffer:
+                buffer.write(await file.read())
+            return {"message": "OK, question received with file", "question": question}
+        else:
+            return {"message": "OK, question received", "question": question}
+    except Exception as ms: 
+        return {"message": "OK, question received", "question": question,"error":ms}
 
 # Run the application
 if __name__ == "__main__":
