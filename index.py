@@ -118,11 +118,11 @@ async def process_question(question: str = Form(...), file: UploadFile = File(No
             if similar_question:
                 print(similar_question)
                 
-                gpt_code=generate_new_code_with_gpt(question, similar_question["question"], similar_question["code"], similar_question["sample_answer"],file_path)
-                cleaned_string = gpt_code.replace("```python", "").replace("```", "").strip()
-                print(cleaned_string)
-                #executed_output = execute_code(similar_question["code"])
-                executed_output = execute_code(cleaned_string)
+                # gpt_code=generate_new_code_with_gpt(question, similar_question["question"], similar_question["code"], similar_question["sample_answer"],file_path)
+                # cleaned_string = gpt_code.replace("```python", "").replace("```", "").strip()
+                # print(cleaned_string)
+                executed_output = execute_code(similar_question["code"])
+                # executed_output = execute_code(cleaned_string)
                 print(executed_output)
                 # return {
                 #     "message": "Similar question found and executed.",
