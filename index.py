@@ -109,7 +109,7 @@ async def process_question(question: str = Form(...), file: UploadFile = File(No
         if True:
             # Save file in /tmp/ (Vercel allows writing only to /tmp/)
             if file:
-                file_path = f"tmp/{file.filename}"
+                file_path = f"/tmp/{file.filename}"
                 with open(file_path, "wb") as buffer:
                     buffer.write(await file.read())
         
