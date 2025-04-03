@@ -109,7 +109,7 @@ async def process_question(question: str = Form(...), file: UploadFile = File(No
         if True:
             # Save file in /tmp/ (Vercel allows writing only to /tmp/)
             if file:
-                file_path = f"/tmp/{file.filename}"
+                file_path = f"tmp/{file.filename}"
                 with open(file_path, "wb") as buffer:
                     buffer.write(await file.read())
         
@@ -117,12 +117,17 @@ async def process_question(question: str = Form(...), file: UploadFile = File(No
         
             if similar_question:
                 print(similar_question)
-                
-                gpt_code=generate_new_code_with_gpt(question, similar_question["question"], similar_question["code"], similar_question["sample_answer"],file_path)
-                cleaned_string = gpt_code.replace("```python", "").replace("```", "").strip()
-                print(cleaned_string)
-                #executed_output = execute_code(similar_question["code"])
-                executed_output = execute_code(cleaned_string)
+                if 'sql' in question.lower() or 'sql' in similar_question["question"].lower():
+                    gpt_code=generate_new_sql_with_gpt(question, similar_question["question"], similar_question["code"], similar_question["sample_answer"],file_path)
+                    cleaned_string = gpt_code.replace("```sql", "").replace("```", "").strip()
+                    print(cleaned_string)
+                    executed_output = cleaned_string
+                else:
+                    gpt_code=generate_new_code_with_gpt(question, similar_question["question"], similar_question["code"], similar_question["sample_answer"],file_path)
+                    cleaned_string = gpt_code.replace("```python", "").replace("```", "").strip()
+                    print(cleaned_string)
+                    #executed_output = execute_code(similar_question["code"])
+                    executed_output = execute_code(cleaned_string)
                 print(executed_output)
                 # return {
                 #     "message": "Similar question found and executed.",
@@ -134,10 +139,16 @@ async def process_question(question: str = Form(...), file: UploadFile = File(No
                     "answer" : executed_output.strip()
                 }
             else:
-                gpt_code=generate_new_code_with_gpt_for_unknown_qp(question,file_path)
-                cleaned_string = gpt_code.replace("```python", "").replace("```", "").strip()
-                print(cleaned_string)
-                executed_output = execute_code(cleaned_string)
+                if 'sql' in question.lower():
+                    gpt_code=generate_new_sql_with_gpt_for_unknown_qp(question,file_path)
+                    cleaned_string = gpt_code.replace("```sql", "").replace("```", "").strip()
+                    print(cleaned_string)
+                    executed_output = cleaned_string
+                else:
+                    gpt_code=generate_new_code_with_gpt_for_unknown_qp(question,file_path)
+                    cleaned_string = gpt_code.replace("```python", "").replace("```", "").strip()
+                    print(cleaned_string)
+                    executed_output = execute_code(cleaned_string)
                 print(executed_output)
             #     return {
             #     "message": "OK, question received with file",
@@ -157,12 +168,13 @@ async def process_question(question: str = Form(...), file: UploadFile = File(No
             "question": question,
             "error": str(e)
         }
+
 def generate_new_code_with_gpt_for_unknown_qp(question,file_path):
     prompt = f"""
     A user has asked a question: "{question}"
     also its file path is {file_path}
     if file path None then ignore it.
-    Now, generate optimized Python code for the user's question and remember give only the code that prints the required result.
+    Now, generate optimized Python code without any comments for the user's question and remember give only the code that prints the required result or give only the sql query if the user have requested for sql query.
     """
 
     response = openai.ChatCompletion.create(
@@ -185,7 +197,44 @@ def generate_new_code_with_gpt(question, reference_question,reference_code, refe
     also its file path is {file_path}
     if file path None then ignore it.
     
-    Now, generate optimized Python code for the user's question while using the reference as guidance and remember give only the code.
+    Now, generate optimized Python code without any comments for the user's question while using the reference as guidance and remember give only the code.
+    """
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",  # Change based on your available model
+        messages=[{"role": "system", "content": "You are an expert Python coder."},
+                  {"role": "user", "content": prompt}]
+    )
+    return response["choices"][0]["message"]["content"]
+def generate_new_sql_with_gpt_for_unknown_qp(question,file_path):
+    prompt = f"""
+    A user has asked a question: "{question}"
+    also its file path is {file_path}
+    if file path None then ignore it.
+    Now, generate optimized SQL Query for the user's question while using the reference as guidance and remember give only the Query.
+    """
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",  # Change based on your available model
+        messages=[{"role": "system", "content": "You are an expert Python coder."},
+                  {"role": "user", "content": prompt}]
+    )
+    return response["choices"][0]["message"]["content"]
+def generate_new_sql_with_gpt(question, reference_question,reference_code, reference_answer,file_path):
+    prompt = f"""
+    A user has asked a question: "{question}"
+    
+    Here is a similar question:{reference_question}
+    reference_query:
+    ``{reference_code}```
+    
+    And its corresponding sample output:
+    "{reference_answer}"
+
+    also its file path is {file_path}
+    if file path None then ignore it.
+    
+    Now, generate optimized SQL Query for the user's question while using the reference as guidance and remember give only the Query.
     """
 
     response = openai.ChatCompletion.create(
