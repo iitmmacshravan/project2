@@ -8,6 +8,7 @@ fastapi= "*"
 psycopg2-binary = "*"
 python-multipart = "*"
 openai = "*"
+numpy ="*"
 
 
  
