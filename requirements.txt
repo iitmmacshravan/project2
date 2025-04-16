@@ -1,4 +1,5 @@
 fastapi
+pandas
 psycopg2-binary
 python-multipart
 openai==0.27.8
